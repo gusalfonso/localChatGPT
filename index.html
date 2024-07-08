@@ -11,7 +11,6 @@
           sans-serif;
         padding: 20px;
         margin: 0;
-        box-sizing: border-box;
         display: grid;
         place-content: center;
         height: 100dvh;
@@ -20,10 +19,16 @@
       }
 
       main {
+        width: 900px;
         max-width: 100%;
         padding: 8px;
         overflow-y: auto;
         scroll-behavior: smooth;
+        min-height: 70dvh;
+      }
+      
+      main::-webkit-scrollbar {
+        visibility: none;
       }
 
       ul {
@@ -39,56 +44,64 @@
         padding: 8px;
         gap: 4px;
 
+        > span:first-child {
+          height: 36px;
+          width: 36px;
+          display: flex;
+          align-items: center;
+          padding: 4px;
+          justify-content: center;
+        }
+
+        > p {
+          margin: 0;
+          border-radius: 4px;
+          padding: 4px 10px;
+          display: flex;
+          align-items: center;
+        }
+
+        &.gpt {
           > span:first-child {
-            height: 36px;
-            width: 36px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 4px;
             background-color: #21222d;
             border-radius: 4px;
-            border: 1px solid white;
+            border: 1px solid #ccc;
           }
-
           > p {
-            margin: 0;
-            border-radius: 4px;
-            padding: 4px 10px;
-            border: 1px solid white;
-            display: flex;
-            align-items: center;
+            border: 1px solid #ccc;
           }
+        }
 
-
-        
-        &.user,
-          p {
-            align-items: flex-end;
-          }
+        &.user {
+          grid-auto-flow: reverse;
+        }
       }
 
       form {
         display: flex;
         gap: 8px;
-        width: 100%;
+        padding: 16px;
         input {
           border-radius: 4px;
           flex-grow: 1;
           padding: 8px;
-          border-radius: 9999999px;
-          border: 1px solid #ccc;
+          background-color: #363f4b;
+          color: white;
+
+          &::placeholder {
+            color: white;
+          }
         }
         button {
           border-radius: 8px;
           border: 0;
-          background-color: #09f;
+          background-color: #21222d;
           color: white;
           cursor: pointer;
           transition: background 0.1s ease-in-out;
 
           &:hover {
-            background-color: rgb(86, 187, 255);
+            background-color: #4e506a;
           }
         }
       }
@@ -150,7 +163,7 @@
         const reply = await engine.chat.completions.create({
           messages: [{ role: "user", content: messageText }],
         });
-        addMessage(reply.choices[0].message.content, "bot");
+        addMessage(reply.choices[0].message.content, "gpt");
       });
 
       function addMessage(message, sender) {
@@ -160,7 +173,7 @@
         const text = messageCloned.querySelector("p");
 
         text.textContent = message;
-        user.textContent = sender === "user" ? "Tú" : "GPT";
+        user.textContent = sender === "user" ? "Tú" : "IA";
 
         messageCloned.classList.add(sender);
 
@@ -180,36 +193,20 @@
     <main>
       <ul>
         <li class="message gpt">
-            <span> GPT </span>
-            <p>Hola Mundo</p>
-        </li>
-        <li class="message user">
-          <span> GPT </span>
-          <p>Hola Mundo</p>
-        </li>
-        <li class="message gpt">
-          <span> GPT </span>
-          <p>
-            Este es un mensaje ultra largo para ver que nada se quede corto.
-            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quasi nisi
-            nemo officiis pariatur commodi blanditiis perferendis doloremque,
-            enim dolore at dolorem consequuntur sed error aperiam asperiores,
-            totam qui! Dignissimos, illo!
-          </p>
+          <span> IA </span>
+          <p>Que quieres saber hoy?</p>
         </li>
       </ul>
     </main>
     <form action="">
-      <input class="question" type="" placeholder="Ask me something" />
+      <input class="question" type="" placeholder="What do you want to know?">
       <button>Submit</button>
     </form>
     <small></small>
     <template id="message-template">
       <li class="message">
-        <div>
           <span> Hola Mundo </span>
           <p>Chau Mundo</p>
-        </div>
       </li>
     </template>
   </body>

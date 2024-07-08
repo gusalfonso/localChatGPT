@@ -1,12 +1,216 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <title>Este es mi propio chatGPT</title>
-</head>
-<body>
-    
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Own ChatGPT</title>
+    <style>
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+          sans-serif;
+        padding: 20px;
+        margin: 0;
+        box-sizing: border-box;
+        display: grid;
+        place-content: center;
+        height: 100dvh;
+        background-color: #151a22;
+        color: white;
+      }
+
+      main {
+        max-width: 100%;
+        padding: 8px;
+        overflow-y: auto;
+        scroll-behavior: smooth;
+      }
+
+      ul {
+        display: flex;
+        flex-direction: column;
+        list-style: none;
+        padding: 0;
+      }
+
+      .message {
+        display: grid;
+        grid-template-columns: 50px 1fr;
+        padding: 8px;
+        gap: 4px;
+
+          > span:first-child {
+            height: 36px;
+            width: 36px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 4px;
+            background-color: #21222d;
+            border-radius: 4px;
+            border: 1px solid white;
+          }
+
+          > p {
+            margin: 0;
+            border-radius: 4px;
+            padding: 4px 10px;
+            border: 1px solid white;
+            display: flex;
+            align-items: center;
+          }
+
+
+        
+        &.user,
+          p {
+            align-items: flex-end;
+          }
+      }
+
+      form {
+        display: flex;
+        gap: 8px;
+        width: 100%;
+        input {
+          border-radius: 4px;
+          flex-grow: 1;
+          padding: 8px;
+          border-radius: 9999999px;
+          border: 1px solid #ccc;
+        }
+        button {
+          border-radius: 8px;
+          border: 0;
+          background-color: #09f;
+          color: white;
+          cursor: pointer;
+          transition: background 0.1s ease-in-out;
+
+          &:hover {
+            background-color: rgb(86, 187, 255);
+          }
+        }
+      }
+
+      small {
+        font-size: 10px;
+        margin: 10px 10px;
+      }
+    </style>
+    <script type="module">
+      import { CreateWebWorkerMLCEngine } from "https://esm.run/@mlc-ai/web-llm";
+
+      const information = document.querySelector("small");
+
+      const initProgressCallback = (initProgress) => {
+        information.textContent = initProgress.text;
+      };
+
+      const selectedModel = "gemma-2b-it-q4f32_1-MLC-1k";
+
+      const engine = await CreateWebWorkerMLCEngine(
+        new Worker("/worker.js", { type: "module" }),
+        selectedModel,
+        {
+          initProgressCallback: initProgressCallback,
+        }
+      );
+
+      // const msg1 = [
+      //   { role: "system", content: "You are a helpful AI assistant." },
+      //   { role: "user", content: "Hello!" },
+      // ];
+
+      // console.log(msg1[0].content)
+
+      // console.log(reply.choices[0].message);
+      // console.log(reply.usage);
+
+      //     async function main() {
+      // const completion = await openai.chat.completions.create({
+      //   messages: [{ role: "system", content: "You are a helpful assistant." }],
+      //   model: "gpt-3.5-turbo",
+      // });
+
+      const form = document.querySelector("form");
+      const question = document.querySelector("input");
+      const messageTemplate = document.querySelector("#message-template");
+      const messages = document.querySelector("ul");
+      const container = document.querySelector("main");
+      const submitButton = document.querySelector("button");
+
+      form.addEventListener("submit", async (e) => {
+        event.preventDefault();
+        const messageText = question.value.trim();
+        if (messageText !== "") {
+          addMessage(messageText, "user");
+        }
+        question.value = "";
+        const reply = await engine.chat.completions.create({
+          messages: [{ role: "user", content: messageText }],
+        });
+        addMessage(reply.choices[0].message.content, "bot");
+      });
+
+      function addMessage(message, sender) {
+        const clonedTemplate = messageTemplate.content.cloneNode(true);
+        const messageCloned = clonedTemplate.querySelector(".message");
+        const user = messageCloned.querySelector("span");
+        const text = messageCloned.querySelector("p");
+
+        text.textContent = message;
+        user.textContent = sender === "user" ? "Tú" : "GPT";
+
+        messageCloned.classList.add(sender);
+
+        messages.appendChild(messageCloned);
+
+        container.scrollTop = container.scrollHeight;
+      }
+
+      // function loading() {
+      //   const small = document.querySelector('small')
+
+      //   small.innerText =
+      // }
+    </script>
+  </head>
+  <body>
+    <main>
+      <ul>
+        <li class="message gpt">
+            <span> GPT </span>
+            <p>Hola Mundo</p>
+        </li>
+        <li class="message user">
+          <span> GPT </span>
+          <p>Hola Mundo</p>
+        </li>
+        <li class="message gpt">
+          <span> GPT </span>
+          <p>
+            Este es un mensaje ultra largo para ver que nada se quede corto.
+            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quasi nisi
+            nemo officiis pariatur commodi blanditiis perferendis doloremque,
+            enim dolore at dolorem consequuntur sed error aperiam asperiores,
+            totam qui! Dignissimos, illo!
+          </p>
+        </li>
+      </ul>
+    </main>
+    <form action="">
+      <input class="question" type="" placeholder="Ask me something" />
+      <button>Submit</button>
+    </form>
+    <small></small>
+    <template id="message-template">
+      <li class="message">
+        <div>
+          <span> Hola Mundo </span>
+          <p>Chau Mundo</p>
+        </div>
+      </li>
+    </template>
+  </body>
 </html>

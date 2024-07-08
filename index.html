@@ -13,22 +13,24 @@
         margin: 0;
         display: grid;
         place-content: center;
-        height: 100dvh;
         background-color: #151a22;
         color: white;
+        height: 90dvh;
       }
 
       main {
+        margin-top: 40px;
         width: 900px;
-        max-width: 100%;
+        max-height: 70dvh;
         padding: 8px;
         overflow-y: auto;
         scroll-behavior: smooth;
-        min-height: 70dvh;
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;
       }
       
       main::-webkit-scrollbar {
-        visibility: none;
+        display: none;
       }
 
       ul {
@@ -192,6 +194,42 @@
   <body>
     <main>
       <ul>
+        <li class="message gpt">
+          <span> IA </span>
+          <p>Que quieres saber hoy?</p>
+        </li>
+        <li class="message user">
+          <span> IA </span>
+          <p>Que quieres saber hoy?</p>
+        </li>
+        <li class="message gpt">
+          <span> IA </span>
+          <p>Que quieres saber hoy?</p>
+        </li>
+        <li class="message gpt">
+          <span> IA </span>
+          <p>Que quieres saber hoy?</p>
+        </li>
+        <li class="message gpt">
+          <span> IA </span>
+          <p>Que quieres saber hoy?</p>
+        </li>
+        <li class="message gpt">
+          <span> IA </span>
+          <p>Que quieres saber hoy?</p>
+        </li>
+        <li class="message gpt">
+          <span> IA </span>
+          <p>Que quieres saber hoy?</p>
+        </li>
+        <li class="message gpt">
+          <span> IA </span>
+          <p>Que quieres saber hoy?</p>
+        </li>
+        <li class="message gpt">
+          <span> IA </span>
+          <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Minus id sed temporibus architecto. Sunt doloribus ullam et, natus beatae iusto fugiat officiis quibusdam dicta obcaecati vitae minus veniam reprehenderit rerum.</p>
+        </li>
         <li class="message gpt">
           <span> IA </span>
           <p>Que quieres saber hoy?</p>

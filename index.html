@@ -13,7 +13,7 @@
         margin: 0;
         display: grid;
         place-content: center;
-        background-color: #151a22;
+        background-color: #92cace;
         color: white;
         height: 90dvh;
       }
@@ -25,10 +25,13 @@
         padding: 8px;
         overflow-y: auto;
         scroll-behavior: smooth;
-        -ms-overflow-style: none;  /* IE and Edge */
+        -ms-overflow-style: none; /* IE and Edge */
         scrollbar-width: none;
+        background-color: #325158;
+        min-height: 70dvh;
+        border-radius: 25px;
       }
-      
+
       main::-webkit-scrollbar {
         display: none;
       }
@@ -65,7 +68,7 @@
 
         &.gpt {
           > span:first-child {
-            background-color: #21222d;
+            background-color: #325158;
             border-radius: 4px;
             border: 1px solid #ccc;
           }
@@ -87,7 +90,7 @@
           border-radius: 4px;
           flex-grow: 1;
           padding: 8px;
-          background-color: #363f4b;
+          background-color: #325158;
           color: white;
 
           &::placeholder {
@@ -97,7 +100,7 @@
         button {
           border-radius: 8px;
           border: 0;
-          background-color: #21222d;
+          background-color: #325158;
           color: white;
           cursor: pointer;
           transition: background 0.1s ease-in-out;
@@ -117,12 +120,34 @@
       import { CreateWebWorkerMLCEngine } from "https://esm.run/@mlc-ai/web-llm";
 
       const information = document.querySelector("small");
+      const form = document.querySelector("form");
+      const question = document.querySelector("input");
+      const messageTemplate = document.querySelector("#message-template");
+      const messages = document.querySelector("ul");
+      const container = document.querySelector("main");
+      const submitButton = document.querySelector("button");
+
+      let end = false;
+      let messagesarray = [];
 
       const initProgressCallback = (initProgress) => {
         information.textContent = initProgress.text;
+        if (initProgress.progress === 1 && !end) {
+          end = true;
+          // $loading?.parentNode?.removeChild($loading)
+          submitButton.removeAttribute("disabled");
+          addMessage(
+            "Hello! I'm a ChatGPT running entirely in your browser. How can I assist you today?",
+            "gpt"
+          );
+          question.focus();
+        }
       };
 
-      const selectedModel = "gemma-2b-it-q4f32_1-MLC-1k";
+      const phi_2520 = "Phi-3-mini-4k-instruct-q4f16_1-MLC-1k";
+      const gemma2_1750 = "gemma-2b-it-q4f32_1-MLC-1k";
+
+      const selectedModel = phi_2520;
 
       const engine = await CreateWebWorkerMLCEngine(
         new Worker("/worker.js", { type: "module" }),
@@ -132,40 +157,49 @@
         }
       );
 
-      // const msg1 = [
-      //   { role: "system", content: "You are a helpful AI assistant." },
-      //   { role: "user", content: "Hello!" },
-      // ];
-
-      // console.log(msg1[0].content)
-
-      // console.log(reply.choices[0].message);
-      // console.log(reply.usage);
-
-      //     async function main() {
-      // const completion = await openai.chat.completions.create({
-      //   messages: [{ role: "system", content: "You are a helpful assistant." }],
-      //   model: "gpt-3.5-turbo",
-      // });
-
-      const form = document.querySelector("form");
-      const question = document.querySelector("input");
-      const messageTemplate = document.querySelector("#message-template");
-      const messages = document.querySelector("ul");
-      const container = document.querySelector("main");
-      const submitButton = document.querySelector("button");
-
       form.addEventListener("submit", async (e) => {
         event.preventDefault();
+
         const messageText = question.value.trim();
         if (messageText !== "") {
-          addMessage(messageText, "user");
+          question.value = "";
         }
-        question.value = "";
-        const reply = await engine.chat.completions.create({
+
+        addMessage(messageText, "user");
+        submitButton.setAttribute("disabled", "");
+
+        const userMessage = {
+          role: "user",
+          content: messageText,
+        };
+
+        messagesarray.push(userMessage);
+
+        const chunks = await engine.chat.completions.create({
           messages: [{ role: "user", content: messageText }],
+          stream: true,
         });
-        addMessage(reply.choices[0].message.content, "gpt");
+
+        const gptMessage = addMessage("", "gpt");
+
+        let reply = "";
+        for await (const chunk of chunks) {
+          console.log(chunk.choices[0]?.delta?.content);
+          console.log(gptMessage);
+          const choice = chunk.choices[0];
+          const content = choice?.delta?.content ?? "";
+          reply += content;
+          console.log(reply);
+          gptMessage.textContent = reply;
+        }
+
+        submitButton.removeAttribute("disabled");
+
+        // messagesarray.push({
+        //   role: "gpt",
+        //   content: reply,
+        // });
+        // container.scrollTop = container.scrollHeight;
       });
 
       function addMessage(message, sender) {
@@ -182,69 +216,24 @@
         messages.appendChild(messageCloned);
 
         container.scrollTop = container.scrollHeight;
+
+        return text;
       }
-
-      // function loading() {
-      //   const small = document.querySelector('small')
-
-      //   small.innerText =
-      // }
     </script>
   </head>
   <body>
     <main>
-      <ul>
-        <li class="message gpt">
-          <span> IA </span>
-          <p>Que quieres saber hoy?</p>
-        </li>
-        <li class="message user">
-          <span> IA </span>
-          <p>Que quieres saber hoy?</p>
-        </li>
-        <li class="message gpt">
-          <span> IA </span>
-          <p>Que quieres saber hoy?</p>
-        </li>
-        <li class="message gpt">
-          <span> IA </span>
-          <p>Que quieres saber hoy?</p>
-        </li>
-        <li class="message gpt">
-          <span> IA </span>
-          <p>Que quieres saber hoy?</p>
-        </li>
-        <li class="message gpt">
-          <span> IA </span>
-          <p>Que quieres saber hoy?</p>
-        </li>
-        <li class="message gpt">
-          <span> IA </span>
-          <p>Que quieres saber hoy?</p>
-        </li>
-        <li class="message gpt">
-          <span> IA </span>
-          <p>Que quieres saber hoy?</p>
-        </li>
-        <li class="message gpt">
-          <span> IA </span>
-          <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Minus id sed temporibus architecto. Sunt doloribus ullam et, natus beatae iusto fugiat officiis quibusdam dicta obcaecati vitae minus veniam reprehenderit rerum.</p>
-        </li>
-        <li class="message gpt">
-          <span> IA </span>
-          <p>Que quieres saber hoy?</p>
-        </li>
-      </ul>
+      <ul></ul>
     </main>
     <form action="">
-      <input class="question" type="" placeholder="What do you want to know?">
-      <button>Submit</button>
+      <input class="question" type="" placeholder="What do you want to know?" />
+      <button disabled>Submit</button>
     </form>
     <small></small>
     <template id="message-template">
       <li class="message">
-          <span> Hola Mundo </span>
-          <p>Chau Mundo</p>
+        <span>Hola Mundo</span>
+        <p>Chau Mundo</p>
       </li>
     </template>
   </body>

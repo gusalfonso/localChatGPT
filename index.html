@@ -195,11 +195,11 @@
 
         submitButton.removeAttribute("disabled");
 
-        // messagesarray.push({
-        //   role: "gpt",
-        //   content: reply,
-        // });
-        // container.scrollTop = container.scrollHeight;
+        messagesarray.push({
+          role: "gpt",
+          content: reply,
+        });
+        container.scrollTop = container.scrollHeight;
       });
 
       function addMessage(message, sender) {
